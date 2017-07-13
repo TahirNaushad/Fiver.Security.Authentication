@@ -1,37 +1,68 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 
 namespace Fiver.Security.Authentication
 {
     public class Startup
     {
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
-        public void ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(
+            IServiceCollection services)
         {
+            services.AddMvc();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(
+            IApplicationBuilder app,
+            IHostingEnvironment env,
+            ILoggerFactory loggerFactory)
         {
-            loggerFactory.AddConsole();
-
-            if (env.IsDevelopment())
+            app.UseDeveloperExceptionPage();
+            app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
-                app.UseDeveloperExceptionPage();
-            }
-
-            app.Run(async (context) =>
-            {
-                await context.Response.WriteAsync("Hello World!");
+                AccessDeniedPath = new PathString("/Security/Access"),
+                AuthenticationScheme = "FiverSecurityCookie",
+                AutomaticAuthenticate = true,
+                AutomaticChallenge = true,
+                ClaimsIssuer = "Fiver Security",
+                //CookieDomain = "",
+                CookieHttpOnly = true,
+                CookieName = ".Fiver.Security.Cookie",
+                CookiePath = "/",
+                CookieSecure = CookieSecurePolicy.SameAsRequest,
+                Events = new CookieAuthenticationEvents
+                {
+                    OnSignedIn = context =>
+                    {
+                        Console.WriteLine("{0} - {1}: {2}", DateTime.Now,
+                          "OnSignedIn", context.Principal.Identity.Name);
+                        return Task.CompletedTask;
+                    },
+                    OnSigningOut = context =>
+                    {
+                        Console.WriteLine("{0} - {1}: {2}", DateTime.Now,
+                          "OnSigningOut", context.HttpContext.User.Identity.Name);
+                        return Task.CompletedTask;
+                    },
+                    OnValidatePrincipal = context =>
+                    {
+                        Console.WriteLine("{0} - {1}: {2}", DateTime.Now,
+                          "OnValidatePrincipal", context.Principal.Identity.Name);
+                        return Task.CompletedTask;
+                    },
+                },
+                ExpireTimeSpan = TimeSpan.FromMinutes(5),
+                LoginPath = new PathString("/Security/Login"),
+                ReturnUrlParameter = "RequestPath",
+                SlidingExpiration = true,
             });
+
+            app.UseMvcWithDefaultRoute();
         }
     }
 }
