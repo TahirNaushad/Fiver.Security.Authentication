@@ -55,9 +55,13 @@ namespace Fiver.Security.Authentication.Controllers
             return View();
         }
 
+        #region " Private "
+
         private bool IsAuthentic(string username, string password)
         {
             return (username == "james" && password == "bond");
         }
+
+        #endregion
     }
 }
