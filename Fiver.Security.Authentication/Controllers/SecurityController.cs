@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Fiver.Security.Authentication.Models.Security;
 using System.Security.Claims;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Http.Authentication;
 using System;
+using Microsoft.AspNetCore.Authentication;
 
 namespace Fiver.Security.Authentication.Controllers
 {
@@ -30,12 +30,13 @@ namespace Fiver.Security.Authentication.Controllers
             ClaimsIdentity identity = new ClaimsIdentity(claims, "cookie");
             ClaimsPrincipal principal = new ClaimsPrincipal(identity);
 
-            await HttpContext.Authentication.SignInAsync(
-                    authenticationScheme: "FiverSecurityCookie",
+            await HttpContext.SignInAsync(
+                    scheme: "FiverSecurityScheme",
                     principal: principal,
                     properties: new AuthenticationProperties
                     {
-                        ExpiresUtc = DateTime.UtcNow.AddMinutes(20)
+                        //IsPersistent = true,
+                        //ExpiresUtc = DateTime.UtcNow.AddMinutes(20)
                     });
 
             return Redirect(inputModel.RequestPath ?? "/");
@@ -44,8 +45,8 @@ namespace Fiver.Security.Authentication.Controllers
 
         public async Task<IActionResult> Logout(string requestPath)
         {
-            await HttpContext.Authentication.SignOutAsync(
-                    authenticationScheme: "FiverSecurityCookie");
+            await HttpContext.SignOutAsync(
+                    scheme: "FiverSecurityScheme");
 
             return RedirectToAction("Login");
         }
