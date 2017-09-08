@@ -17,11 +17,9 @@ namespace Fiver.Security.Authentication
                     .AddCookie("FiverSecurityScheme", options =>
                     {
                         options.AccessDeniedPath = new PathString("/Security/Access");
-                        options.ClaimsIssuer = "Fiver Security";
                         options.Cookie = new CookieBuilder
                         {
-                            Domain = "",
-                            Expiration = TimeSpan.FromMinutes(10),
+                            //Domain = "",
                             HttpOnly = true,
                             Name = ".Fiver.Security.Cookie",
                             Path = "/",
@@ -49,9 +47,8 @@ namespace Fiver.Security.Authentication
                                 return Task.CompletedTask;
                             }
                         };
-                        options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+                        //options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
                         options.LoginPath = new PathString("/Security/Login");
-                        options.LogoutPath = new PathString("/Security/Login");
                         options.ReturnUrlParameter = "RequestPath";
                         options.SlidingExpiration = true;
                     });
